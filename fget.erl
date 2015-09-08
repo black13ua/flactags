@@ -12,15 +12,16 @@
 
 get(File) when is_list(File) ->
     case file:read_file(File) of
-        {ok, Data} -> parse_bin(Data, [], 0);
+        {ok, Data} -> parse_flac_header(Data);
         Any -> Any
     end.
 
+parse_flac_header(<<"fLaC", Rest/binary>>) ->
+    io:format("This is FLAC file ~p~n", [[]]),
+    parse_bin(<<Rest/binary>>, [], 0).
+
 parse_bin(Bin, Result, N) ->
     case Bin of
-      <<"fLaC", Rest/binary>> ->
-	io:format("This is FLAC file ~p~n", [[]]),
-	parse_bin(<<Rest/binary>>, [], N + 1);
       <<0:1, Type:7, Length:24, Rest/binary>> ->
 %	io:format("First metadata block is: ~p~n", [[Type, Length]]),
 %	parse_bin(<<Rest/binary>>, <<>>, [], N + 1);
