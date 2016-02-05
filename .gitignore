@@ -1,10 +1,10 @@
 .eunit
 deps
-*.o
 *.beam
 *.plt
+*.swp
 erl_crash.dump
 ebin
 rel/example_project
-.concrete/DEV_MODE
+priv/files/*
 .rebar
