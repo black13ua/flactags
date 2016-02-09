@@ -17,7 +17,7 @@ get(File) when is_list(File) ->
     end.
 
 parse_flac_header(<<"fLaC", Rest/binary>>) ->
-    io:format("This is FLAC file ~p~n", [[]]),
+    io:format("This is FLAC file ~p~n", [?MODULE]),
     parse_bin(<<Rest/binary>>, [], 0).
 
 parse_bin(Bin, Result, N) ->
@@ -30,14 +30,18 @@ parse_bin(Bin, Result, N) ->
 	cut_length(1, <<Rest/binary>>, Type, Length, Result);
       <<>> ->
 	lists:reverse(Result);
-      Any -> error
+      _ -> error
     end.
 
+cut_length(0, Rest, ?BLOCK_TYPE_VORBIS_COMMENT=Type, Length, Result) ->
+    io:format("Block 4 FOUND ..~p~n", [[Type, Length]]),
+    <<_Block:Length/binary, BinCutted/binary>> = Rest,
+    parse_bin(<<BinCutted/binary>>, [{Type, Length}|Result], 0);
 cut_length(0, Rest, Type, Length, Result) ->
     io:format("Info for cutting ...~p~n", [[Type, Length]]),
     <<_Block:Length/binary, BinCutted/binary>> = Rest,
     parse_bin(<<BinCutted/binary>>, [{Type, Length}|Result], 0);
 cut_length(1, Rest, Type, Length, Result) ->
     io:format("Last Block for cutting ...~p~n", [[Type, Length]]),
-    <<_Block:Length/binary, BinCutted/binary>> = Rest,
+    <<_Block:Length/binary, _BinCutted/binary>> = Rest,
     parse_bin(<<>>, [{Type, Length}|Result], 0).
