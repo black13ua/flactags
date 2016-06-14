@@ -36,9 +36,9 @@ parse_bin(Bin, Result, N) ->
 cut_length(0, Rest, ?BLOCK_TYPE_VORBIS_COMMENT=Type, Length, Result) ->
     io:format("Block 4 FOUND ...~p~n", [[Type, Length]]),
     <<_Block:Length/binary, BinCutted/binary>> = Rest,
-    %
+    %%%%
     parse_block(<<_Block:Length/binary>>),
-    %
+    %%%%
     parse_bin(<<BinCutted/binary>>, [{Type, Length}|Result], 0);
 cut_length(0, Rest, Type, Length, Result) ->
     io:format("Info for cutting ...~p~n", [[Type, Length]]),
@@ -49,8 +49,7 @@ cut_length(1, Rest, Type, Length, Result) ->
     <<_Block:Length/binary, _BinCutted/binary>> = Rest,
     parse_bin(<<>>, [{Type, Length}|Result], 0).
 
-parse_block(<<_:32, Flac_block/binary>>) ->
-    io:format("As Term: ~w~n, ", [Flac_block]),
-    io:format("As String: ~s~n, ", [Flac_block]),
-    io:format("As Pretty: ~p~n", [[Flac_block, 0]]).
-
+parse_block(<<VectorLen:4/little-signed-integer-unit:8, Block4/binary>>) ->
+    io:format("As Pretty Len: ~p~n", [VectorLen]),
+    <<Tag:VectorLen/binary, TagRest/binary>> = Block4,
+    io:format("As Pretty Tag: ~p~n", [Tag]).
