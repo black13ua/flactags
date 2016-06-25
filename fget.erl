@@ -16,9 +16,13 @@ get(File) when is_list(File) ->
         Any -> Any
     end.
 
-check_flac_file(<<"fLaC", Rest/binary>>) ->
-    io:format("This is FLAC file ~p~n", [?MODULE]),
-    parse_bin(<<Rest/binary>>, []).
+check_flac_file(Bin) ->
+    case Bin of
+        <<"fLaC", Rest/binary>> ->
+            io:format("This is FLAC file ~p~n", [?MODULE]),
+            parse_bin(<<Rest/binary>>, []);
+        _ -> file_not_flac
+    end.
 
 parse_bin(Bin, Result) ->
     case Bin of
