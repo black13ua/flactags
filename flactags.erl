@@ -83,11 +83,12 @@ parse_blocks(BlockType, _, _, _, _) ->
 
 parse_block4_vn(<<VNLen:4/little-signed-integer-unit:8, RestBlock4/binary>>, _List) ->
     <<VendorName:VNLen/binary, _Skip:4/binary, _Block4Cutted/binary>> = RestBlock4,
-    parse_block(<<_Block4Cutted/binary>>, [<<"VENDORNAME">>,VendorName]).
+    parse_block(<<_Block4Cutted/binary>>, [{<<"VENDORNAME">>,VendorName}]).
 
 parse_block(<<VectorLen:4/little-signed-integer-unit:8, Block4/binary>>, TagsList) ->
     <<Tag:VectorLen/binary, TagRest/binary>> = Block4,
-    parse_block(<<TagRest/binary>>, [binary:split(Tag, <<"=">>)|TagsList]);
+    [K,V] = binary:split(Tag, <<"=">>),
+    parse_block(<<TagRest/binary>>, [{K,V}|TagsList]);
 parse_block(<<>>, TagsList) ->
 	{ok, TagsList}.
 
