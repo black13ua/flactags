@@ -43,14 +43,26 @@ find_blocks(0, File, Offset, Acc) ->
     file:position(File, Offset),
     {ok, Block} = file:read(File, ?BLOCK_HEADER_SIZE),
     {Last, BlockType, BlockLength} = parse_block_header(Block),
-    Result = parse_blocks(BlockType, File, Offset, BlockLength, []),
-    find_blocks(Last, File, Offset + BlockLength + ?BLOCK_HEADER_SIZE, [Result|Acc]);
+    %Result = parse_blocks(BlockType, File, Offset, BlockLength, []),
+    case parse_blocks(BlockType, File, Offset, BlockLength, []) of
+        {ok,Result} ->    
+            find_blocks(Last, File, Offset + BlockLength + ?BLOCK_HEADER_SIZE, [Result|Acc]);
+        {skip,_} ->    
+            find_blocks(Last, File, Offset + BlockLength + ?BLOCK_HEADER_SIZE, Acc)
+    end;
+    %find_blocks(Last, File, Offset + BlockLength + ?BLOCK_HEADER_SIZE, [Result|Acc]);
 find_blocks(1, File, Offset, Acc) ->
     file:position(File, Offset),
     {ok, Block} = file:read(File, ?BLOCK_HEADER_SIZE),
     {_Last, BlockType, BlockLength} = parse_block_header(Block),
-    Result = parse_blocks(BlockType, File, Offset, BlockLength, []),
-    [Result|Acc].
+    %Result = parse_blocks(BlockType, File, Offset, BlockLength, []),
+    case parse_blocks(BlockType, File, Offset, BlockLength, []) of
+        {ok,Result} ->    
+            [Result|Acc];
+        {skip,_} ->    
+            Acc
+    end.
+
 
 %%%%
 %% Internal Functions
@@ -65,17 +77,17 @@ parse_blocks(?BLOCK_TYPE_VORBIS_COMMENT, File, Offset, BlockLength, _ResAcc) ->
     file:position(File, Offset + ?BLOCK_HEADER_SIZE),
     {ok, Block} = file:read(File, BlockLength),
     parse_block4_vn(<<Block/binary>>, []);
-parse_blocks(Block, _, _, _, _) ->
-    {Block, skip}.
+parse_blocks(BlockType, _, _, _, _) ->
+    {skip, BlockType}.
 
 
 parse_block4_vn(<<VNLen:4/little-signed-integer-unit:8, RestBlock4/binary>>, _List) ->
     <<VendorName:VNLen/binary, _Skip:4/binary, _Block4Cutted/binary>> = RestBlock4,
-    parse_block(<<_Block4Cutted/binary>>, [VendorName]).
+    parse_block(<<_Block4Cutted/binary>>, [<<"VENDORNAME">>,VendorName]).
 
 parse_block(<<VectorLen:4/little-signed-integer-unit:8, Block4/binary>>, TagsList) ->
     <<Tag:VectorLen/binary, TagRest/binary>> = Block4,
-    parse_block(<<TagRest/binary>>, [Tag|TagsList]);
+    parse_block(<<TagRest/binary>>, [binary:split(Tag, <<"=">>)|TagsList]);
 parse_block(<<>>, TagsList) ->
-    lists:reverse(TagsList).
+	{ok, TagsList}.
 
