@@ -37,28 +37,25 @@ check_file_header(File) ->
     end.
 
 find_blocks(File) ->
-    find_blocks(0, File, ?BLOCK_HEADER_SIZE, []).
+    find_blocks(0, File, ?BLOCK_HEADER_SIZE, #{}).
 
 find_blocks(0, File, Offset, Acc) ->
     file:position(File, Offset),
     {ok, Block} = file:read(File, ?BLOCK_HEADER_SIZE),
     {Last, BlockType, BlockLength} = parse_block_header(Block),
-    %Result = parse_blocks(BlockType, File, Offset, BlockLength, []),
     case parse_blocks(BlockType, File, Offset, BlockLength, #{}) of
         {ok,Result} ->
-            find_blocks(Last, File, Offset + BlockLength + ?BLOCK_HEADER_SIZE, [{BlockType, Result}|Acc]);
+            find_blocks(Last, File, Offset + BlockLength + ?BLOCK_HEADER_SIZE, maps:put(BlockType, Result, Acc));
         {skip,_} ->
             find_blocks(Last, File, Offset + BlockLength + ?BLOCK_HEADER_SIZE, Acc)
     end;
-    %find_blocks(Last, File, Offset + BlockLength + ?BLOCK_HEADER_SIZE, [Result|Acc]);
 find_blocks(1, File, Offset, Acc) ->
     file:position(File, Offset),
     {ok, Block} = file:read(File, ?BLOCK_HEADER_SIZE),
     {_Last, BlockType, BlockLength} = parse_block_header(Block),
-    %Result = parse_blocks(BlockType, File, Offset, BlockLength, []),
     case parse_blocks(BlockType, File, Offset, BlockLength, #{}) of
         {ok, Result} ->
-            [{BlockType, Result}|Acc];
+            maps:put(BlockType, Result, Acc);
         {skip, _} ->
             Acc
     end.
