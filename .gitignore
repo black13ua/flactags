@@ -8,3 +8,4 @@ ebin
 rel/example_project
 priv/files/*
 .rebar
+_build
