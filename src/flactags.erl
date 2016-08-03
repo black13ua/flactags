@@ -12,7 +12,7 @@
 
 -define(BLOCK_HEADER_SIZE, 4).
 
-get_tags(Filename) ->
+get_tags(Filename) when is_list(Filename)->
     case file:open(Filename, [read, raw, binary]) of
         {ok, File} ->
             Tags = case check_file_header(File) of
