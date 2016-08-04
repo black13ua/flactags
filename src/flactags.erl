@@ -12,7 +12,7 @@
 
 -define(BLOCK_HEADER_SIZE, 4).
 
-get_tags(Filename) when is_list(Filename)->
+get_tags(Filename) when is_list(Filename) ->
     case file:open(Filename, [read, raw, binary]) of
         {ok, File} ->
             Tags = case check_file_header(File) of
@@ -28,9 +28,8 @@ get_tags(Filename) when is_list(Filename)->
     end.
 
 check_file_header(File) ->
-    {ok, FileHeader} = file:read(File, 4),
-    case FileHeader of
-        <<"fLaC">> ->
+    case file:read(File, ?BLOCK_HEADER_SIZE) of
+        {ok, <<"fLaC">>} ->
             true;
         _ ->
             false
