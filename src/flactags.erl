@@ -84,7 +84,8 @@ parse_block4_vn(<<VNLen:4/little-signed-integer-unit:8, RestBlock4/binary>>, Tag
 parse_block(<<VectorLen:4/little-signed-integer-unit:8, Block4/binary>>, TagsMap) ->
     <<Tag:VectorLen/binary, TagRest/binary>> = Block4,
     [Key, Val] = binary:split(Tag, <<"=">>),
-    parse_block(<<TagRest/binary>>, maps:put(Key, Val, TagsMap));
+    KeyUpper = << <<(string:to_upper(C))/utf8>> || <<C/utf8>> <= Key >>,
+    parse_block(<<TagRest/binary>>, maps:put(KeyUpper, Val, TagsMap));
 parse_block(<<>>, TagsMap) ->
 	{ok, TagsMap}.
 
