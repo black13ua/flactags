@@ -22,7 +22,7 @@ get_tags(Filename) when is_list(Filename) ->
                            {error, file_not_flac} 
                    end,
             file:close(File),
-            {ok, Tags};
+            Tags;
         _ ->
             {error, file_not_found}
     end.
@@ -56,7 +56,7 @@ find_blocks(1, File, Offset, Acc) ->
         {ok, Result} ->
             maps:put(BlockType, Result, Acc);
         {skip, _} ->
-            Acc
+            {ok, Acc}
     end.
 
 
