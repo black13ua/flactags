@@ -19,12 +19,12 @@ get_tags(Filename) when is_list(Filename) ->
                        true ->
                            find_blocks(File);
                        false ->
-                           {error, not_flac} 
+                           {error, file_not_flac} 
                    end,
             file:close(File),
-            Tags;
+            {ok, Tags};
         _ ->
-            not_found
+            {error, file_not_found}
     end.
 
 check_file_header(File) ->
