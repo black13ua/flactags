@@ -68,7 +68,7 @@ parse_block_header(<<Last:1, Type:7, Length:24>>) ->
     {Last, Type, Length}.
 
 % Block Data Parser
-% There we can add parsing any other blocks
+% There we can add parsing for other blocks
 parse_blocks(?BLOCK_TYPE_VORBIS_COMMENT, File, Offset, BlockLength, TagsMap) ->
     file:position(File, Offset + ?BLOCK_HEADER_SIZE),
     {ok, Block} = file:read(File, BlockLength),
@@ -87,5 +87,5 @@ parse_block(<<VectorLen:4/little-signed-integer-unit:8, Block4/binary>>, TagsMap
     KeyUpper = << <<(string:to_upper(C))/utf8>> || <<C/utf8>> <= Key >>,
     parse_block(<<TagRest/binary>>, maps:put(KeyUpper, Val, TagsMap));
 parse_block(<<>>, TagsMap) ->
-	{ok, TagsMap}.
+    {ok, TagsMap}.
 

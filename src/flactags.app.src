@@ -1,16 +1,15 @@
-{application, flactags,
- [{description, "An OTP application"},
-  {vsn, "0.1.0"},
+{application, flactags, [
+  {description, "An OTP application for read Vorbis tags from FLAC files"},
+  {vsn, "0.1.1"},
   {registered, []},
-  {mod, { flactags_app, []}},
-  {applications,
-   [kernel,
-    stdlib
-   ]},
+  {mod, {flactags_app, []}},
+  {applications, [
+      kernel,
+      stdlib
+  ]},
   {env,[]},
   {modules, []},
-
   {maintainers, []},
   {licenses, []},
   {links, []}
- ]}.
+]}.
